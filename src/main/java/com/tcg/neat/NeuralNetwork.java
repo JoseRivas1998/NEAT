@@ -7,10 +7,19 @@ import java.util.stream.Collectors;
 
 public final class NeuralNetwork {
 
+    private enum RandomSingleton {
+        INSTANCE;
+
+        Random random;
+
+        RandomSingleton() {
+            this.random = new Random();
+        }
+    }
+
     private static final int INPUT_LAYER = 1;
     private List<Neuron> neurons;
     private List<ConnectionGene> connections;
-    private Random random;
 
     private int layers;
 
@@ -43,7 +52,6 @@ public final class NeuralNetwork {
         bias.layer = INPUT_LAYER;
         biasId = bias.getId();
         layers = 2;
-        random = new Random();
         innovationNumber = 1;
     }
 
@@ -110,18 +118,18 @@ public final class NeuralNetwork {
             return;
         }
 
-        if (random.nextDouble() < WEIGHT_MUTATION_CHANCE) {
+        if (RandomSingleton.INSTANCE.random.nextDouble() < WEIGHT_MUTATION_CHANCE) {
             connections
                     .stream()
                     .filter(ConnectionGene::isEnabled)
-                    .forEach(connectionGene -> connectionGene.mutateWeight(random));
+                    .forEach(connectionGene -> connectionGene.mutateWeight(RandomSingleton.INSTANCE.random));
         }
 
-        if (random.nextDouble() < CONNECTION_MUTATION_CHANCE) {
+        if (RandomSingleton.INSTANCE.random.nextDouble() < CONNECTION_MUTATION_CHANCE) {
             mutateConnection(connectionHistory);
         }
 
-        if (random.nextDouble() < NEURON_MUTATION_CHANCE) {
+        if (RandomSingleton.INSTANCE.random.nextDouble() < NEURON_MUTATION_CHANCE) {
             mutateNeuron(connectionHistory);
         }
 
@@ -129,9 +137,11 @@ public final class NeuralNetwork {
 
     private void mutateNeuron(List<ConnectionHistory> connectionHistory) {
         int geneIndex;
+        int numTries = 0;
         do {
-            geneIndex = random.nextInt(connections.size());
-        } while (!connections.get(geneIndex).isEnabled());
+            numTries++;
+            geneIndex = RandomSingleton.INSTANCE.random.nextInt(connections.size());
+        } while (!connections.get(geneIndex).isEnabled() && numTries < 50);
         ConnectionGene connectionGene = connections.get(geneIndex);
         int nextLayer = connectionGene.input.layer + 1;
         if (nextLayer == connectionGene.output.layer) {
@@ -156,8 +166,8 @@ public final class NeuralNetwork {
         Neuron n1;
         Neuron n2;
         do {
-            n1 = neurons.get(random.nextInt(neurons.size()));
-            n2 = neurons.get(random.nextInt(neurons.size()));
+            n1 = neurons.get(RandomSingleton.INSTANCE.random.nextInt(neurons.size()));
+            n2 = neurons.get(RandomSingleton.INSTANCE.random.nextInt(neurons.size()));
         } while (!validConnection(n1, n2));
 
         if (n1.layer < n2.layer) {
@@ -218,7 +228,7 @@ public final class NeuralNetwork {
 
     private void addConnection(Neuron input, Neuron output, List<ConnectionHistory> connectionHistory) {
         int innovationNumber = generateInnovationNumber(input, output, connectionHistory);
-        connections.add(new ConnectionGene(input, output, random, true, innovationNumber));
+        connections.add(new ConnectionGene(input, output, RandomSingleton.INSTANCE.random, true, innovationNumber));
     }
 
     private void addConnection(int input, int output, double weight, boolean enabled, int innovationNumber) {

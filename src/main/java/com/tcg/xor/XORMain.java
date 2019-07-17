@@ -1,6 +1,7 @@
 package com.tcg.xor;
 
 import com.tcg.neat.ActivationFunction;
+import com.tcg.neat.Player;
 
 import java.util.Arrays;
 
@@ -12,11 +13,24 @@ public class XORMain {
         System.out.println("Done");
         for (int i = 0; i < 100; i++) {
             int gen = pop.getGeneration();
-            double avgError = pop.step();
-            System.out.printf("Generation %d: %.5f", gen, avgError);
+            pop.step();
+            ((XORPlayer) pop.getBestEver()).doXOR();
+            double best = ((XORPlayer) pop.getBestEver()).getError();
+            System.out.printf("%d: %.2f\n", gen, best);
         }
-        double[] outputs = pop.getBestEver().feedForward(new double[]{1.0, 0.0}, ActivationFunction.SIGMOID.activationFunction);
-        System.out.println(Arrays.toString(outputs));
+        double[][] inputs = {
+                {1.0, 1.0},
+                {1.0, 0.0},
+                {0.0, 1.0},
+                {0.0, 0.0}
+        };
+        Player best = pop.getBestEver();
+        for (double[] input : inputs) {
+            System.out.print(Arrays.toString(input) + ": ");
+            double output = best.feedForward(input, ActivationFunction.SIGMOID.activationFunction)[0];
+            System.out.println(output);
+        }
+
     }
 
 }

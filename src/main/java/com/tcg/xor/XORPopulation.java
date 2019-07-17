@@ -11,6 +11,7 @@ public class XORPopulation extends Population {
 
     public double step() {
         double totalError = 0;
+        int i = 0;
         for (Player player : population) {
             ((XORPlayer) player).doXOR();
             totalError += ((XORPlayer) player).getError();

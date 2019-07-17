@@ -80,6 +80,7 @@ public abstract class Population {
     }
 
     private void sortSpecies() {
+        species.forEach(Species::sortPlayers);
         species.sort(Comparator.reverseOrder());
     }
 

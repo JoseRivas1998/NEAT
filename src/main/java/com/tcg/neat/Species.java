@@ -21,7 +21,7 @@ public final class Species implements Comparable<Species> {
     private static final double C3 = 0.5;
     private static final double THRESHOLD = 3;
 
-    private static final double DUPLICATION_CHANCE = 0.15;
+    private static final double DUPLICATION_CHANCE = 0.25;
 
     public Species(Player player) {
         players = new ArrayList<>();
